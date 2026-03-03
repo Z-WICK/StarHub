@@ -1,0 +1,1060 @@
+openapi: 3.0.3
+info:
+  title: GitHub Star Manager API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: health
+  - name: auth
+  - name: stars
+  - name: tags
+  - name: sync
+  - name: governance
+  - name: io
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeMap'
+
+  /v1/auth/login:
+    post:
+      tags: [auth]
+      summary: Login with GitHub token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [githubToken]
+              properties:
+                githubToken:
+                  type: string
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeLogin'
+
+  /v1/auth/session:
+    get:
+      tags: [auth]
+      summary: Validate session token
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Session valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSession'
+
+  /v1/stars:
+    get:
+      tags: [stars]
+      summary: List stars
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Full-text keyword query
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Backward-compatible alias of q
+        - in: query
+          name: language
+          schema:
+            type: string
+        - in: query
+          name: tagId
+          schema:
+            type: integer
+        - in: query
+          name: hasNote
+          schema:
+            type: boolean
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [starred_at, pushed_at, stargazers_count, updated_at]
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Star list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeStars'
+
+  /v1/tags:
+    get:
+      tags: [tags]
+      summary: List tags
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Tags list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeTags'
+    post:
+      tags: [tags]
+      summary: Create tag
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, color]
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+      responses:
+        '200':
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeTag'
+
+  /v1/tags/assign:
+    post:
+      tags: [tags]
+      summary: Assign tag to repository
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repositoryId, tagId]
+              properties:
+                repositoryId:
+                  type: integer
+                tagId:
+                  type: integer
+      responses:
+        '200':
+          description: Assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeStatus'
+
+  /v1/tags/unassign:
+    post:
+      tags: [tags]
+      summary: Unassign tag from repository
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repositoryId, tagId]
+              properties:
+                repositoryId:
+                  type: integer
+                tagId:
+                  type: integer
+      responses:
+        '200':
+          description: Unassigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeStatus'
+
+  /v1/tags/batch/assign:
+    post:
+      tags: [tags]
+      summary: Batch assign tag to repositories
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repositoryIds, tagId]
+              properties:
+                repositoryIds:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items:
+                    type: integer
+                tagId:
+                  type: integer
+      responses:
+        '200':
+          description: Batch assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeStatus'
+
+  /v1/tags/batch/unassign:
+    post:
+      tags: [tags]
+      summary: Batch unassign tag from repositories
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repositoryIds, tagId]
+              properties:
+                repositoryIds:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items:
+                    type: integer
+                tagId:
+                  type: integer
+      responses:
+        '200':
+          description: Batch unassigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeStatus'
+
+  /v1/notes:
+    post:
+      tags: [stars]
+      summary: Upsert note for repository
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repositoryId, content]
+              properties:
+                repositoryId:
+                  type: integer
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Note saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeStatus'
+
+  /v1/readme:
+    post:
+      tags: [stars]
+      summary: Get repository README preview
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repositoryId]
+              properties:
+                repositoryId:
+                  type: integer
+      responses:
+        '200':
+          description: README content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeReadmePreview'
+
+  /v1/sync:
+    post:
+      tags: [sync]
+      summary: Trigger sync
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sync started or finished
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSync'
+
+  /v1/sync/status:
+    get:
+      tags: [sync]
+      summary: Latest sync status
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Latest sync status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSyncJob'
+
+  /v1/sync/settings:
+    get:
+      tags: [sync]
+      summary: Get sync scheduler settings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sync settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSyncSettings'
+    post:
+      tags: [sync]
+      summary: Update sync scheduler settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled, intervalHours, retryMax]
+              properties:
+                enabled:
+                  type: boolean
+                intervalHours:
+                  type: integer
+                  enum: [6, 12, 24]
+                retryMax:
+                  type: integer
+                  minimum: 0
+                  maximum: 5
+      responses:
+        '200':
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSyncSettings'
+
+  /v1/sync/rules:
+    get:
+      tags: [sync]
+      summary: List smart rules
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Rules list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSmartRules'
+    post:
+      tags: [sync]
+      summary: Create smart rule
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, enabled, tagId]
+              properties:
+                name:
+                  type: string
+                enabled:
+                  type: boolean
+                languageEquals:
+                  type: string
+                ownerContains:
+                  type: string
+                nameContains:
+                  type: string
+                descriptionContains:
+                  type: string
+                tagId:
+                  type: integer
+      responses:
+        '200':
+          description: Created smart rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSmartRule'
+
+  /v1/sync/rules/delete:
+    post:
+      tags: [sync]
+      summary: Delete smart rule
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ruleId]
+              properties:
+                ruleId:
+                  type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeStatus'
+
+  /v1/sync/rules/apply:
+    post:
+      tags: [sync]
+      summary: Apply enabled smart rules immediately
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Rules applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeApplyRules'
+
+  /v1/governance/metrics:
+    get:
+      tags: [governance]
+      summary: Get governance metrics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Governance metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeGovernanceMetrics'
+
+  /v1/io/export:
+    get:
+      tags: [io]
+      summary: Export tags rules and notes as JSON
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Export payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeExportPayload'
+
+  /v1/io/import:
+    post:
+      tags: [io]
+      summary: Import tags rules and notes from JSON
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportPayload'
+      responses:
+        '200':
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeImportResult'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Meta:
+      type: object
+      nullable: true
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        displayName:
+          type: string
+        githubLogin:
+          type: string
+        avatarUrl:
+          type: string
+
+    LoginData:
+      type: object
+      properties:
+        token:
+          type: string
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+
+    SessionData:
+      type: object
+      properties:
+        userId:
+          type: integer
+
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        color:
+          type: string
+
+    StarRecord:
+      type: object
+      properties:
+        repositoryId:
+          type: integer
+        githubRepoId:
+          type: integer
+        ownerLogin:
+          type: string
+        name:
+          type: string
+        fullName:
+          type: string
+        private:
+          type: boolean
+        htmlUrl:
+          type: string
+        description:
+          type: string
+        language:
+          type: string
+        stargazersCount:
+          type: integer
+        starredAt:
+          type: string
+          format: date-time
+        lastSeenAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+
+    StarsData:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StarRecord'
+
+    SyncData:
+      type: object
+      properties:
+        processed:
+          type: integer
+        cursor:
+          type: string
+
+    SyncJob:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          nullable: true
+          format: date-time
+        cursor:
+          type: string
+        errorMessage:
+          type: string
+
+    RepositoryRef:
+      type: object
+      properties:
+        repositoryId:
+          type: integer
+        ownerLogin:
+          type: string
+        name:
+          type: string
+        fullName:
+          type: string
+
+    ReadmePreview:
+      type: object
+      properties:
+        repository:
+          $ref: '#/components/schemas/RepositoryRef'
+        content:
+          type: string
+
+    SyncSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        intervalHours:
+          type: integer
+        retryMax:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+
+    SmartRule:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        enabled:
+          type: boolean
+        languageEquals:
+          type: string
+        ownerContains:
+          type: string
+        nameContains:
+          type: string
+        descriptionContains:
+          type: string
+        tagId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    ApplyRulesData:
+      type: object
+      properties:
+        applied:
+          type: integer
+
+    GovernanceMetrics:
+      type: object
+      properties:
+        totalStars:
+          type: integer
+        untaggedStars:
+          type: integer
+        untaggedRatio:
+          type: number
+        syncJobs7d:
+          type: integer
+        syncSuccess7d:
+          type: integer
+        syncSuccessRate7d:
+          type: number
+        staleStars:
+          type: integer
+
+    ExportRule:
+      type: object
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
+        languageEquals:
+          type: string
+        ownerContains:
+          type: string
+        nameContains:
+          type: string
+        descriptionContains:
+          type: string
+        tagName:
+          type: string
+
+    ExportNote:
+      type: object
+      properties:
+        githubRepoId:
+          type: integer
+        content:
+          type: string
+
+    ExportTagBinding:
+      type: object
+      properties:
+        githubRepoId:
+          type: integer
+        tagName:
+          type: string
+
+    ExportPayload:
+      type: object
+      properties:
+        version:
+          type: string
+        exportedAt:
+          type: string
+          format: date-time
+        syncSettings:
+          $ref: '#/components/schemas/SyncSettings'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        smartRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportRule'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportNote'
+        tagBindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportTagBinding'
+
+    ImportPayload:
+      type: object
+      required: [tags, smartRules, notes, tagBindings]
+      properties:
+        syncSettings:
+          allOf:
+            - $ref: '#/components/schemas/SyncSettings'
+          nullable: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        smartRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportRule'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportNote'
+        tagBindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportTagBinding'
+
+    ImportResult:
+      type: object
+      properties:
+        tagsUpserted:
+          type: integer
+        rulesUpserted:
+          type: integer
+        notesUpserted:
+          type: integer
+        tagBindingsLinked:
+          type: integer
+
+    StatusData:
+      type: object
+      properties:
+        status:
+          type: string
+
+    EnvelopeLogin:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/LoginData'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeSession:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/SessionData'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeStars:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/StarsData'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeTag:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Tag'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeTags:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeStatus:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/StatusData'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeSync:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/SyncData'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeSyncJob:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/SyncJob'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeReadmePreview:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ReadmePreview'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeSyncSettings:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/SyncSettings'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeSmartRule:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/SmartRule'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeSmartRules:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SmartRule'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeApplyRules:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ApplyRulesData'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeGovernanceMetrics:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/GovernanceMetrics'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeExportPayload:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ExportPayload'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeImportResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ImportResult'
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    EnvelopeMap:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          additionalProperties:
+            type: string
+        error:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'

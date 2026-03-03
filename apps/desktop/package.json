@@ -1,0 +1,42 @@
+{
+  "name": "github-star-manager-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Desktop app for managing GitHub stars",
+  "author": "wick",
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && tsc -b && vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "npm run build:electron && playwright test",
+    "electron:start": "npm run build:electron && electron .",
+    "electron:dev": "concurrently -k \"npm run dev\" \"wait-on tcp:1420 && npm run electron:start\"",
+    "electron:build": "npm run build && npm run build:electron && electron-builder --config electron-builder.yml"
+  },
+  "dependencies": {
+    "keytar": "^7.9.0",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "@types/node": "^22.13.4",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "concurrently": "^9.1.2",
+    "electron": "^37.3.0",
+    "electron-builder": "^26.0.12",
+    "jsdom": "^26.0.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.8",
+    "vue-tsc": "^3.2.5",
+    "wait-on": "^8.0.3"
+  }
+}

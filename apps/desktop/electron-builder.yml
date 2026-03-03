@@ -1,0 +1,15 @@
+appId: com.github.star.manager
+directories:
+  output: dist-electron-packages
+  app: .
+files:
+  - dist/**
+  - dist-electron/**
+  - package.json
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.developer-tools
+dmg:
+  artifactName: github-star-manager-${version}.${ext}

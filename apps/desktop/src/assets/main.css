@@ -1,0 +1,262 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-muted: #b7c3d8;
+
+  --accent: #60a5fa;
+  --accent-strong: #3b82f6;
+  --accent-soft: rgba(96, 165, 250, 0.24);
+
+  --surface-base: rgba(2, 6, 23, 0.38);
+  --surface-elevated: rgba(15, 23, 42, 0.52);
+  --surface-overlay: rgba(15, 23, 42, 0.68);
+
+  --glass-bg: rgba(15, 23, 42, 0.56);
+  --glass-bg-strong: rgba(2, 6, 23, 0.62);
+  --glass-bg-soft: rgba(15, 23, 42, 0.44);
+  --glass-hover: rgba(51, 65, 92, 0.64);
+  --glass-overlay: rgba(2, 6, 23, 0.68);
+
+  --border-glass: rgba(226, 232, 240, 0.34);
+  --border-soft: rgba(186, 199, 220, 0.42);
+  --border-strong: rgba(191, 219, 254, 0.62);
+
+  --radius-panel: 18px;
+  --radius-control: 12px;
+  --radius-mini: 10px;
+
+  --control-height: 36px;
+  --control-height-mini: 28px;
+  --control-padding-x: 12px;
+  --control-gap: 8px;
+
+  --shadow-panel: 0 10px 24px rgba(2, 6, 23, 0.4), 0 26px 54px rgba(2, 6, 23, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --shadow-soft: 0 8px 18px rgba(2, 6, 23, 0.32), 0 18px 34px rgba(2, 6, 23, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  --motion-micro: 180ms cubic-bezier(0.2, 0.85, 0.25, 1);
+  --motion-panel: 280ms cubic-bezier(0.2, 0.9, 0.24, 1);
+  --transition-fast: var(--motion-micro);
+  --transition-base: 220ms cubic-bezier(0.2, 0.85, 0.25, 1);
+  --focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.78), 0 0 0 6px rgba(96, 165, 250, 0.26);
+  --button-text: #eff6ff;
+  --error-color: #fecaca;
+  --app-background:
+    radial-gradient(circle at 15% -10%, rgba(96, 165, 250, 0.22), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(34, 211, 238, 0.18), transparent 34%),
+    radial-gradient(circle at 40% 100%, rgba(99, 102, 241, 0.16), transparent 44%),
+    linear-gradient(160deg, #020617 0%, #0b1120 48%, #111827 100%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #475569;
+
+    --surface-base: rgba(248, 250, 252, 0.9);
+    --surface-elevated: rgba(255, 255, 255, 0.84);
+    --surface-overlay: rgba(255, 255, 255, 0.92);
+
+    --glass-bg: rgba(255, 255, 255, 0.82);
+    --glass-bg-strong: rgba(255, 255, 255, 0.9);
+    --glass-bg-soft: rgba(248, 250, 252, 0.82);
+    --glass-hover: rgba(226, 232, 240, 0.86);
+    --glass-overlay: rgba(241, 245, 249, 0.72);
+
+    --border-glass: rgba(148, 163, 184, 0.34);
+    --border-soft: rgba(148, 163, 184, 0.42);
+    --border-strong: rgba(96, 165, 250, 0.58);
+
+    --shadow-panel: 0 8px 20px rgba(15, 23, 42, 0.12), 0 20px 44px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --shadow-soft: 0 6px 14px rgba(15, 23, 42, 0.08), 0 14px 28px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.88);
+
+    --focus-ring: 0 0 0 2px rgba(37, 99, 235, 0.72), 0 0 0 5px rgba(59, 130, 246, 0.2);
+    --button-text: #0b1120;
+    --error-color: #b91c1c;
+    --app-background:
+      radial-gradient(circle at 10% -10%, rgba(56, 189, 248, 0.16), transparent 42%),
+      radial-gradient(circle at 100% 0%, rgba(96, 165, 250, 0.14), transparent 36%),
+      radial-gradient(circle at 35% 100%, rgba(167, 139, 250, 0.12), transparent 44%),
+      linear-gradient(165deg, #f8fafc 0%, #eff6ff 48%, #e2e8f0 100%);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  color: var(--text-primary);
+  background: var(--app-background);
+  background-attachment: fixed;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--text-muted) 60%, transparent);
+  text-underline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ui-glass-panel {
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-panel);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--text-primary) 8%, transparent), var(--glass-bg));
+  backdrop-filter: blur(18px) saturate(152%);
+  -webkit-backdrop-filter: blur(18px) saturate(152%);
+  box-shadow: var(--shadow-panel);
+  transition: background var(--motion-panel), border-color var(--transition-base), box-shadow var(--motion-panel), transform var(--motion-panel);
+}
+
+.ui-glass-soft {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--text-primary) 6%, transparent), var(--glass-bg-soft));
+  backdrop-filter: blur(14px) saturate(148%);
+  -webkit-backdrop-filter: blur(14px) saturate(148%);
+  box-shadow: var(--shadow-soft);
+  transition: background var(--motion-panel), border-color var(--transition-base), box-shadow var(--motion-panel), transform var(--motion-panel);
+}
+
+.ui-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: var(--glass-overlay);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.ui-btn {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  min-height: var(--control-height);
+  padding: 0 var(--control-padding-x);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
+  font-size: 14px;
+  font-weight: 560;
+  background: linear-gradient(132deg, color-mix(in srgb, var(--accent-strong) 86%, white), color-mix(in srgb, var(--accent) 72%, white));
+  color: var(--button-text);
+  transition: transform var(--motion-micro), opacity var(--transition-fast), background var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.ui-btn:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.ui-btn:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.01);
+  opacity: 0.96;
+  border-color: rgba(191, 219, 254, 0.7);
+}
+
+.ui-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.995);
+  opacity: 0.9;
+}
+
+.ui-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ui-btn--ghost {
+  background: color-mix(in srgb, var(--surface-overlay) 78%, transparent);
+  border-color: var(--border-soft);
+  color: var(--text-primary);
+}
+
+.ui-btn--mini {
+  border-radius: var(--radius-mini);
+  min-height: var(--control-height-mini);
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.ui-input,
+.ui-select,
+.ui-textarea {
+  width: 100%;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--surface-elevated) 86%, transparent);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  min-height: var(--control-height);
+  padding: 0 10px;
+  transition: border-color var(--transition-base), background-color var(--transition-base), box-shadow var(--transition-base), transform var(--motion-micro);
+}
+
+.ui-input:focus,
+.ui-select:focus,
+.ui-textarea:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent-strong) 88%, white);
+  background: color-mix(in srgb, var(--surface-overlay) 92%, white 8%);
+  transform: translateY(-0.5px);
+  box-shadow: var(--focus-ring);
+}
+
+.ui-input::placeholder,
+.ui-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.ui-textarea {
+  resize: vertical;
+  min-height: 88px;
+  padding: 8px 10px;
+  line-height: 1.45;
+}
+
+.ui-hint {
+  color: var(--text-secondary);
+}
+
+.ui-error {
+  color: var(--error-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
